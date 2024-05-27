@@ -1,0 +1,243 @@
+if not getgenv().DevToolsRunning then
+    local OrionLib =
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Roblox/master/Orion.lua", true))()
+    local Window =
+        OrionLib:MakeWindow(
+        {
+            Name = "Dev Tools",
+            TestMode = true,
+            SaveConfig = true,
+            ConfigFolder = "DevTools",
+            IntroEnabled = true,
+            IntroText = "Welcome " .. game.Players.LocalPlayer.DisplayName,
+            CloseCallback = function()
+                getgenv().DevToolsRunning = false
+            end
+        }
+    )
+
+    local Tabs = {
+        Scripts = Window:MakeTab({Name = "Main", Icon = "home", TestersOnly = false}),
+        Copy = Window:MakeTab({Name = "Copy Paste", Icon = "copy", TestersOnly = false}),
+        Tools = Window:MakeTab({Name = "Tools", Icon = "hammer", TestersOnly = false})
+    }
+
+    local function MadeInform(text1, text, RunContest)
+        Tabs[RunContest]:AddSection({Name = text1 .. tostring(text)})
+    end
+
+    MadeInform("HWID: ", gethwid(), "Scripts")
+    Tabs.Scripts:AddButton(
+        {
+            Name = "Copy HWID Script",
+            Callback = function()
+                setclipboard("gethwid()")
+                OrionLib:MakeNotification(
+                    {
+                        Name = "Dev Tools",
+                        Content = "Done",
+                        Image = "rbxassetid://4483345998",
+                        Time = 5
+                    }
+                )
+            end
+        }
+    )
+
+    MadeInform("DisplayName: ", game.Players.LocalPlayer.DisplayName, "Scripts")
+    Tabs.Scripts:AddButton(
+        {
+            Name = "Copy DisplayName Script",
+            Callback = function()
+                setclipboard("game.Players.LocalPlayer.DisplayName")
+                OrionLib:MakeNotification(
+                    {
+                        Name = "Dev Tools",
+                        Content = "Done",
+                        Image = "rbxassetid://4483345998",
+                        Time = 5
+                    }
+                )
+            end
+        }
+    )
+    MadeInform("PlaceId: ", game.PlaceId, "Scripts")
+    Tabs.Scripts:AddButton(
+        {
+            Name = "Copy Place Id Script",
+            Callback = function()
+                setclipboard("game.PlaceId")
+                OrionLib:MakeNotification(
+                    {
+                        Name = "Dev Tools",
+                        Content = "Done",
+                        Image = "rbxassetid://4483345998",
+                        Time = 5
+                    }
+                )
+            end
+        }
+    )
+
+    Tabs.Scripts:AddButton(
+        {
+            Name = "Destoy UI",
+            Callback = function()
+                OrionLib:Destroy()
+            end
+        }
+    )
+
+    --COPY PASTE
+    MadeInform("HWID: ", gethwid(), "Copy")
+    Tabs.Copy:AddButton(
+        {
+            Name = "Copy HWID Script",
+            Callback = function()
+                setclipboard("gethwid()")
+                OrionLib:MakeNotification(
+                    {
+                        Name = "Dev Tools",
+                        Content = "Done",
+                        Image = "rbxassetid://4483345998",
+                        Time = 5
+                    }
+                )
+            end
+        }
+    )
+
+    MadeInform("DisplayName: ", game.Players.LocalPlayer.DisplayName, "Copy")
+    Tabs.Copy:AddButton(
+        {
+            Name = "Copy DisplayName Script",
+            Callback = function()
+                setclipboard("game.Players.LocalPlayer.DisplayName")
+                OrionLib:MakeNotification(
+                    {
+                        Name = "Dev Tools",
+                        Content = "Done",
+                        Image = "rbxassetid://4483345998",
+                        Time = 5
+                    }
+                )
+            end
+        }
+    )
+    MadeInform("PlaceId: ", game.PlaceId, "Copy")
+    Tabs.Copy:AddButton(
+        {
+            Name = "Copy Place Id Script",
+            Callback = function()
+                setclipboard("game.PlaceId")
+                OrionLib:MakeNotification(
+                    {
+                        Name = "Dev Tools",
+                        Content = "Done",
+                        Image = "rbxassetid://4483345998",
+                        Time = 5
+                    }
+                )
+            end
+        }
+    )
+
+    Tabs.Copy:AddDropdown(
+        {
+            Name = "Place Teleport",
+            Default = "None",
+            Options = {"None", "Test", "Copy"},
+            Callback = function(Value)
+                if Value == "Test" then
+                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                elseif Value == "Copy" then
+                    setclipboard('game:GetService("TeleportService"):Teleport(' .. tostring(game.PlaceId) .. ")")
+                    OrionLib:MakeNotification(
+                        {
+                            Name = "Dev Tools",
+                            Content = "Done",
+                            Image = "rbxassetid://4483345998",
+                            Time = 5
+                        }
+                    )
+                end
+            end
+        }
+    )
+    local playerparts = {"None", "Camera"}
+    for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("MeshPart") or v:IsA("Part") then
+            table.insert(playerparts, v.Name)
+        end
+    end
+
+    getgenv().SelectedPart = "None"
+    Tabs.Copy:AddDropdown(
+        {
+            Name = "Player Parts",
+            Default = "None",
+            Options = playerparts,
+            Callback = function(Value)
+                getgenv().SelectedPart = Value
+            end
+        }
+    )
+
+    Tabs.Copy:AddDropdown(
+        {
+            Name = "Action",
+            Default = "None",
+            Options = {"None", "Position", "Path"},
+            Callback = function(Value)
+                local char = game.Players.LocalPlayer.Character
+                local getit = function()
+                    if getgenv().SelectedPart == "Camera" then
+                        return "workspace.CurrentCamera"
+                    else
+                        return char:FindFirstChild(getgenv().SelectedPart)
+                    end
+                end
+                local getpart = getit()
+                if Value == "Position" then
+                    setclipboard(tostring(getpart.Position))
+                elseif Value == "Path" and getgenv().SelectedPart ~= "Camera" then
+                    setclipboard(
+                        "game.Players.LocalPlayer.Character:FindFirstChild('" .. getgenv().SelectedPart .. "')"
+                    )
+                elseif Value == "Path" and getgenv().SelectedPart == "Camera" then
+                    setclipboard("workspace.CurrentCamera")
+                end
+            end
+        }
+    )
+
+    --TOOLS
+    Tabs.Tools:AddDropdown(
+        {
+            Name = "Tools",
+            Default = "None",
+            Options = {"None", "Dex Explorer", "Infinite Yield", "Remote Spy"},
+            Callback = function(Value)
+                if Value == "Dex Explorer" then
+                    local __function =
+                        loadstring(
+                        game:HttpGet("https://github.com/Hosvile/DEX-Explorer/releases/latest/download/main.lua", true)
+                    )
+
+                    __function(__function)
+                elseif Value == "Infinite Yield" then
+                    loadstring(game:HttpGet "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")()
+                elseif Value == "Remote Spy" then
+                    if game:GetService "UserInputService".TouchEnabled then
+                        loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/RS/main/SimpleSpyMobile"))()
+                    else
+                        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Remote-Spy-12957"))()
+                    end
+                end
+            end
+        }
+    )
+
+    OrionLib:Init()
+    getgenv().DevToolsRunning = true
+end
